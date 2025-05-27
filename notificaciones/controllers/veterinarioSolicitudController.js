@@ -22,28 +22,22 @@ const getRequests = async (req, res) => {
     }
 };
 
-const approveRequest = async (req, res) => {
+const handleRequestAction = async (req, res, action, successMessage, errorMessage) => {
     const { userId } = req.body;
-
     try {
-        await veterinarianRequestService.approveRequest(userId);
-        res.status(200).json({ message: 'Solicitud aprobada y rol actualizado' });
+        await veterinarianRequestService[action](userId);
+        res.status(200).json({ message: successMessage });
     } catch (error) {
-        console.error('Error al aprobar la solicitud:', error);
-        res.status(500).json({ error: 'Error al aprobar la solicitud' });
+        console.error(`${errorMessage}:`, error);
+        res.status(500).json({ error: errorMessage });
     }
 };
 
-const rejectRequest = async (req, res) => {
-    const { userId } = req.body;
+const approveRequest = (req, res) =>
+    handleRequestAction(req, res, 'approveRequest', 'Solicitud aprobada y rol actualizado', 'Error al aprobar la solicitud');
 
-    try {
-        await veterinarianRequestService.rejectRequest(userId);
-        res.status(200).json({ message: 'Solicitud rechazada' });
-    } catch (error) {
-        console.error('Error al rechazar la solicitud:', error);
-        res.status(500).json({ error: 'Error al rechazar la solicitud' });
-    }
-};
+const rejectRequest = (req, res) =>
+    handleRequestAction(req, res, 'rejectRequest', 'Solicitud rechazada', 'Error al rechazar la solicitud');
+
 
 module.exports = { createRequest, getRequests, approveRequest, rejectRequest };

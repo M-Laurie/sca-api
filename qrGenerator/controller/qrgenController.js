@@ -1,21 +1,29 @@
 const qrgenService = require('../service/qrgenService');
 
+const validateQueryId = (id) => {
+    if (!id) {
+        const error = new Error('Se necesita una id');
+        error.statusCode = 400;
+        throw error;
+    }
+};
+
 const generateQRCode = async (req, res) => {
     try {
         const { id } = req.query;
-        if (!id) {
-            return res.status(400).json({ message: 'Se necesita una id' });
-        }
+        validateQueryId(id);
 
-        const base64Data = await qrgenService.generateQRCode(id);
+        const buffer = await qrgenService.getQRCodeBuffer(id);
 
-        const buffer = Buffer.from(base64Data, 'base64');
         res.setHeader('Content-Type', 'image/png');
         res.send(buffer);
     } catch (error) {
+        const status = error.statusCode || 500;
         console.error('Error generando código QR en el controlador:', error);
-        res.status(500).json({ message: 'Error generando código QR', error: error.message });
+        res.status(status).json({ message: error.message });
     }
 };
 
 module.exports = { generateQRCode };
+
+

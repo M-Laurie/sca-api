@@ -4,16 +4,24 @@ const Usuario = require('../../auth/model/usuario');
 const createRequest = async ({ userId, vetMatricula }) => {
     try {
         const existingRequest = await VeterinarianRequest.findOne({ where: { userId, status: 'pending' } });
+
         if (existingRequest) {
+            const error = new Error('Solicitud duplicada');
+            error.code = 'SOLICITUD_DUPLICADA';
+            throw error;
+        }
+
+        return await VeterinarianRequest.create({ userId, vetMatricula });
+
+    } catch (error) {
+        if (error.code === 'SOLICITUD_DUPLICADA') {
             throw new Error('Ya tienes una solicitud pendiente');
         }
 
-        const request = await VeterinarianRequest.create({ userId, vetMatricula });
-        return request;
-    } catch (error) {
-        throw new Error('Ya tienes una solicitud pendiente');
+        throw new Error('Error al crear la solicitud');
     }
 };
+
 
 const getRequests = async () => {
     try {

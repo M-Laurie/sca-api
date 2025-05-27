@@ -1,50 +1,38 @@
-const animalServicio = require('../services/animalService.js');
+const animalService = require('../services/animalService.js');
+
+const manejarErrores = (fn) => {
+  return (req, res, next) => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  };
+};
 
 class ControladorAnimal {
-  async crearAnimal(req, res) {
-    try {
-      const animal = await animalServicio.crearAnimal(req.body);
-      res.status(201).json(animal);
-    } catch (error) {
-      res.status(500).json({ mensaje: error.message });
-    }
-  }
 
-  async obtenerTodosLosAnimales(req, res) {
-    try {
-      const animales = await animalServicio.obtenerTodosLosAnimales();
-      res.status(200).json(animales);
-    } catch (error) {
-      res.status(500).json({ mensaje: error.message });
-    }
-  }
+  crearAnimal = manejarErrores(async (req, res) => {
+    const animal = await animalService.crearAnimal(req.body);
+    res.status(201).json(animal);
+  });
 
-  async obtenerAnimalPorId(req, res) {
-    try {
-      const animal = await animalServicio.obtenerAnimalPorId(req.params.id);
-      res.status(200).json(animal);
-    } catch (error) {
-      res.status(404).json({ mensaje: error.message });
-    }
-  }
+  obtenerTodosLosAnimales = manejarErrores(async (req, res) => {
+    const animales = await animalService.obtenerTodosLosAnimales();
+    res.status(200).json(animales);
+  });
 
-  async actualizarAnimal(req, res) {
-    try {
-      const animal = await animalServicio.actualizarAnimal(req.params.id, req.body);
-      res.status(200).json(animal);
-    } catch (error) {
-      res.status(500).json({ mensaje: error.message });
-    }
-  }
+  obtenerAnimalPorId = manejarErrores(async (req, res) => {
+    const animal = await animalService.obtenerAnimalPorId(req.params.id);
+    res.status(200).json(animal);
+  });
 
-  async eliminarAnimal(req, res) {
-    try {
-      await animalServicio.eliminarAnimal(req.params.id);
-      res.status(204).json();
-    } catch (error) {
-      res.status(500).json({ mensaje: error.message });
-    }
-  }
+  actualizarAnimal = manejarErrores(async (req, res) => {
+    const animal = await animalService.actualizarAnimal(req.params.id, req.body);
+    res.status(200).json(animal);
+  });
+
+  eliminarAnimal = manejarErrores(async (req, res) => {
+    await animalService.eliminarAnimal(req.params.id);
+    res.status(204).json();
+
+  });
 }
 
 module.exports = new ControladorAnimal();
